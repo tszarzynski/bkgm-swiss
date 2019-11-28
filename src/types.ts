@@ -1,4 +1,4 @@
-export interface Player {
+export interface ISBPlayer {
   ID: number;
   name?: string;
   gamesWon: number;
@@ -8,6 +8,6 @@ export interface Player {
   opponents: number[];
 }
 
-export type Players = Player[];
-export type Pairing = [number, number];
-export type Pairings = Pairing[];
+export type ISBPlayers = ISBPlayer[];
+export type ISBPairing = [number, number];
+export type ISBPairings = ISBPairing[];

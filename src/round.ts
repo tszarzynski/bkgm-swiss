@@ -1,13 +1,13 @@
 import { pairPlayers } from './pair';
 import { calcOMV, rankPlayers } from './rank';
-import { Pairing, Player, Players } from './types';
+import { ISBPairing, ISBPlayer, ISBPlayers } from './types';
 
-export function playRound(players: Players): Players {
+export function playRound(players: ISBPlayers): ISBPlayers {
   // make pairs
   const pairings = pairPlayers(players);
 
-  let roundResults: Players = [];
-  pairings.forEach((pair: Pairing) => {
+  let roundResults: ISBPlayers = [];
+  pairings.forEach((pair: ISBPairing) => {
     // BYE
     if (checkIfBye(pair)) {
       roundResults = roundResults.concat(playBye(pair, players));
@@ -23,11 +23,11 @@ export function playRound(players: Players): Players {
   return rankPlayers(roundResults);
 }
 
-function updatePlayer(pl: Player, props: Partial<Player>): Player {
+function updatePlayer(pl: ISBPlayer, props: Partial<ISBPlayer>): ISBPlayer {
   return { ...pl, ...props };
 }
 
-function playMatch([pr1, pr2]: Pairing, players: Players) {
+function playMatch([pr1, pr2]: ISBPairing, players: ISBPlayers) {
   console.log('Playing: ' + pr1 + ' vs ' + pr2);
   const pl1 = players.find(p => p.ID === pr1)!;
   const pl2 = players.find(p => p.ID === pr2)!;
@@ -60,10 +60,10 @@ function playMatch([pr1, pr2]: Pairing, players: Players) {
   ];
 }
 
-function checkIfBye([pr1, pr2]: Pairing) {
+function checkIfBye([pr1, pr2]: ISBPairing) {
   return pr1 === -1 || pr2 === -1;
 }
-function playBye([pr1, pr2]: Pairing, players: Players) {
+function playBye([pr1, pr2]: ISBPairing, players: ISBPlayers) {
   console.log('Playing BYE');
   const pl = players.find(p => p.ID === pr1 || p.ID === pr2)!;
   return [

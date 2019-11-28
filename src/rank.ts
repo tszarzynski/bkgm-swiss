@@ -1,11 +1,11 @@
-import { Players, Player } from './types';
+import { ISBPlayers, ISBPlayer } from './types';
 
 /**
  * Returns sorted list of players. Function tries to resolve tiebreaks by using 3 sorting critetias:
  * number of matches won, number of games won and OMV.
  * @param players list of players
  */
-export function rankPlayers(players: Players) {
+export function rankPlayers(players: ISBPlayers) {
   return players.sort((p1, p2) => {
     if (p1.matchesWon > p2.matchesWon) return -1;
     if (p1.matchesWon < p2.matchesWon) return 1;
@@ -25,7 +25,7 @@ export function rankPlayers(players: Players) {
  * @param players list of players
  * @param pl player to calculate OMV for
  */
-export function calcOMV(players: Players, pl: Player) {
+export function calcOMV(players: ISBPlayers, pl: ISBPlayer) {
   return (
     players
       .filter(p => pl.opponents.includes(p.ID))

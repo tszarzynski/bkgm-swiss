@@ -1,9 +1,9 @@
 import blossom from 'edmonds-blossom';
 import { countOccurences } from './utils';
-import { Players, Pairings, Player } from './types';
+import { ISBPlayers, ISBPairings, ISBPlayer } from './types';
 import { rankPlayers } from './rank';
 
-export function pairPlayers(players: Players) {
+export function pairPlayers(players: ISBPlayers) {
   const nominatedID = checkBye(players);
 
   if (nominatedID !== -1) {
@@ -12,12 +12,15 @@ export function pairPlayers(players: Players) {
 
   const ws = calcWeights(players);
   const mwm: number[] = blossom(ws);
-  const result: Pairings = mwm.map((p, index) => [
+  const result: ISBPairings = mwm.map((p, index) => [
     players[index].ID,
     p !== -1 ? players[p].ID : -1,
   ]);
 
-  const resultNoDup: Pairings = result.reduce<{ pls: number[]; prs: Pairings }>(
+  const resultNoDup: ISBPairings = result.reduce<{
+    pls: number[];
+    prs: ISBPairings;
+  }>(
     (acc, curr) => {
       const found = acc.pls.some(pl => curr.includes(pl));
 
@@ -35,7 +38,7 @@ export function pairPlayers(players: Players) {
   return resultNoDup;
 }
 
-function calcWeights(players: Players) {
+function calcWeights(players: ISBPlayers) {
   const len = players.length;
   // get the highest score
   const highestScore = Math.max(...players.map(p => p.gamesWon));
@@ -57,7 +60,7 @@ function calcWeights(players: Players) {
  * @param pl1 First player
  * @param pl2 Second player
  */
-function calcWeight(highestScore: number, pl1: Player, pl2: Player) {
+function calcWeight(highestScore: number, pl1: ISBPlayer, pl2: ISBPlayer) {
   let w = 0;
   const opponents = countOccurences(pl1.opponents);
   if (
@@ -86,7 +89,7 @@ export function quality(importance: number, closeness: number) {
  * Check if we need to grant 'bye' ti a player and return nominated player ID
  * @param players list of players
  */
-function checkBye(players: Players) {
+function checkBye(players: ISBPlayers) {
   if (players.length % 2 !== 0) {
     const playersWithByes = rankPlayers(players).map(p => ({
       ID: p.ID,

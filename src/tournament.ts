@@ -1,8 +1,8 @@
 import { playRound } from './round';
-import { Players } from './types';
+import { ISBPlayers } from './types';
 import { roundsNeeded } from './utils';
 
-const players: Players = [
+const players: ISBPlayers = [
   { ID: 0, matchesWon: 0, matchesLost: 0, omv: 0, gamesWon: 0, opponents: [] },
   { ID: 1, matchesWon: 0, matchesLost: 0, omv: 0, gamesWon: 0, opponents: [] },
   { ID: 2, matchesWon: 0, matchesLost: 0, omv: 0, gamesWon: 0, opponents: [] },
@@ -11,7 +11,7 @@ const players: Players = [
   { ID: 5, matchesWon: 0, matchesLost: 0, omv: 0, gamesWon: 0, opponents: [] },
 ];
 
-function tournament(players: Players) {
+function tournament(players: ISBPlayers) {
   const numRounds = roundsNeeded(players.length, 1);
   let round = 0;
 
