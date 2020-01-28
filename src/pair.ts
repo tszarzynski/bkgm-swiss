@@ -1,25 +1,33 @@
-import blossom from 'edmonds-blossom';
-import { countOccurences } from './utils';
-import { ISBPlayers, ISBPairings, ISBPlayer } from './types';
-import { rankPlayers } from './rank';
+import blossom from "edmonds-blossom";
+import { countOccurences } from "./utils";
+import { ISBPlayer, ISBPairing } from "./types";
+import { rankPlayers } from "./rank";
+import { BYE_ID, NON_EXISITING_ID } from "./consts";
 
-export function pairPlayers(players: ISBPlayers) {
+export function pairPlayers(players: ISBPlayer[]) {
+  // check if we have a player with BYE nomination
   const nominatedID = checkBye(players);
 
+  // if we have a player with BYE remove him from the list
   if (nominatedID !== -1) {
     players = players.filter(p => p.ID !== nominatedID);
   }
 
+  // calculate weights for graph edges
   const ws = calcWeights(players);
+  // calculate MWM for the graph
   const mwm: number[] = blossom(ws);
-  const result: ISBPairings = mwm.map((p, index) => [
+
+  // transform pairings to use players IDs
+  const result: ISBPairing[] = mwm.map((p, index) => [
     players[index].ID,
-    p !== -1 ? players[p].ID : -1,
+    p !== -1 ? players[p].ID : -1
   ]);
 
-  const resultNoDup: ISBPairings = result.reduce<{
+  // remove duplicate pairings from the results i.e [1,3] [3,1]
+  const resultNoDup: ISBPairing[] = result.reduce<{
     pls: number[];
-    prs: ISBPairings;
+    prs: ISBPairing[];
   }>(
     (acc, curr) => {
       const found = acc.pls.some(pl => curr.includes(pl));
@@ -31,6 +39,7 @@ export function pairPlayers(players: ISBPlayers) {
     { pls: [], prs: [] }
   ).prs;
 
+  // add player nominated for BYE
   if (nominatedID !== -1) {
     resultNoDup.push([nominatedID, -1]);
   }
@@ -38,15 +47,20 @@ export function pairPlayers(players: ISBPlayers) {
   return resultNoDup;
 }
 
-function calcWeights(players: ISBPlayers) {
+export function calcHighestScore(players: ISBPlayer[]) {
+  return Math.max(...players.map(p => p.gamesWon));
+}
+
+export function calcWeights(players: ISBPlayer[]) {
   const len = players.length;
   // get the highest score
-  const highestScore = Math.max(...players.map(p => p.gamesWon));
+  const highestScore = calcHighestScore(players);
   const ws = [];
 
   for (let i = 0; i < len - 1; i++) {
     for (let j = i + 1; j < len; j++) {
       if (i === j) break;
+      // we use indexes insted of IDs because MWM algorithm requires that in pairPlayer function
       ws.push([i, j, calcWeight(highestScore, players[i], players[j])]);
     }
   }
@@ -60,17 +74,24 @@ function calcWeights(players: ISBPlayers) {
  * @param pl1 First player
  * @param pl2 Second player
  */
-function calcWeight(highestScore: number, pl1: ISBPlayer, pl2: ISBPlayer) {
+export function calcWeight(
+  highestScore: number,
+  pl1: ISBPlayer,
+  pl2: ISBPlayer
+) {
   let w = 0;
+  // count how mant times pl1 played other players
   const opponents = countOccurences(pl1.opponents);
-  if (
-    opponents.size > 0 &&
-    (opponents.get(pl2.ID) || Number.MAX_VALUE) <
-      Math.max(...Array.from(opponents.values()))
-  ) {
-    w += quality(highestScore, highestScore) + 1;
+  if (opponents.size > 0) {
+    if (
+      (opponents.get(pl2.ID) || 0) < Math.max(...Array.from(opponents.values()))
+    ) {
+      // if pl1 played more games with other players and weight
+      w += quality(highestScore, highestScore) + 1;
+    }
   }
 
+  // Determine a score for the quality of this pairing based on the points of the higher scoring participant of the two (importance) and how close the two participant's records are.
   const best = Math.max(pl1.gamesWon, pl2.gamesWon);
   const worst = Math.min(pl1.gamesWon, pl2.gamesWon);
   const spread = best - worst;
@@ -82,18 +103,20 @@ function calcWeight(highestScore: number, pl1: ISBPlayer, pl2: ISBPlayer) {
 }
 
 export function quality(importance: number, closeness: number) {
-  return (importance + 1 ** 2) * (closeness + 1 ** 2);
+  return (importance + 1) ** 2 * (closeness + 1) ** 2;
 }
 
 /**
- * Check if we need to grant 'bye' ti a player and return nominated player ID
+ * Check if we need to grant 'bye' to a player and return nominated player ID
  * @param players list of players
  */
-function checkBye(players: ISBPlayers) {
+export function checkBye(players: ISBPlayer[]) {
   if (players.length % 2 !== 0) {
+    // nominate a player if number of players is odd
+
     const playersWithByes = rankPlayers(players).map(p => ({
       ID: p.ID,
-      bye: countOccurences(p.opponents).get(-1) || 0,
+      bye: countOccurences(p.opponents).get(BYE_ID) || 0
     }));
     const smallestBye = playersWithByes.reduce(
       (acc, p) => Math.min(acc, p.bye),
@@ -106,6 +129,7 @@ function checkBye(players: ISBPlayers) {
 
     return nominated ? nominated.ID : -1;
   } else {
-    return -1;
+    // no nomination if number of players is even
+    return NON_EXISITING_ID;
   }
 }

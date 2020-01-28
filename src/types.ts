@@ -8,6 +8,4 @@ export interface ISBPlayer {
   opponents: number[];
 }
 
-export type ISBPlayers = ISBPlayer[];
 export type ISBPairing = [number, number];
-export type ISBPairings = ISBPairing[];

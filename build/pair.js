@@ -15,7 +15,7 @@ function pairPlayers(players) {
     const mwm = edmonds_blossom_1.default(ws);
     const result = mwm.map((p, index) => [
         players[index].ID,
-        p !== -1 ? players[p].ID : -1,
+        p !== -1 ? players[p].ID : -1
     ]);
     const resultNoDup = result.reduce((acc, curr) => {
         const found = acc.pls.some(pl => curr.includes(pl));
@@ -65,19 +65,20 @@ function calcWeight(highestScore, pl1, pl2) {
     w += quality(importnace, closenes);
     return w;
 }
+exports.calcWeight = calcWeight;
 function quality(importance, closeness) {
     return (importance + 1 ** 2) * (closeness + 1 ** 2);
 }
 exports.quality = quality;
 /**
- * Check if we need to grant 'bye' ti a player and return nominated player ID
+ * Check if we need to grant 'bye' to a player and return nominated player ID
  * @param players list of players
  */
 function checkBye(players) {
     if (players.length % 2 !== 0) {
         const playersWithByes = rank_1.rankPlayers(players).map(p => ({
             ID: p.ID,
-            bye: utils_1.countOccurences(p.opponents).get(-1) || 0,
+            bye: utils_1.countOccurences(p.opponents).get(-1) || 0
         }));
         const smallestBye = playersWithByes.reduce((acc, p) => Math.min(acc, p.bye), 0);
         const nominated = playersWithByes
@@ -89,4 +90,5 @@ function checkBye(players) {
         return -1;
     }
 }
+exports.checkBye = checkBye;
 //# sourceMappingURL=pair.js.map
