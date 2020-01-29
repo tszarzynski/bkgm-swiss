@@ -4,6 +4,8 @@ import { ISBPlayer, ISBPairing } from "./types";
 import { rankPlayers } from "./rank";
 import { BYE_ID, NON_EXISITING_ID } from "./consts";
 
+import * as R from "ramda";
+
 export function pairPlayers(players: ISBPlayer[]) {
   // check if we have a player with BYE nomination
   const nominatedID = checkBye(players);
@@ -47,26 +49,53 @@ export function pairPlayers(players: ISBPlayer[]) {
   return resultNoDup;
 }
 
-export function calcHighestScore(players: ISBPlayer[]) {
-  return Math.max(...players.map(p => p.gamesWon));
-}
+// export function calcHighestScore(players: ISBPlayer[]) {
+//   return Math.max(...players.map(p => p.gamesWon));
+// }
 
-export function calcWeights(players: ISBPlayer[]) {
-  const len = players.length;
-  // get the highest score
-  const highestScore = calcHighestScore(players);
-  const ws = [];
+export const calcHighestScore = (players: ISBPlayer[]) =>
+  R.compose(
+    R.reduce<number, number>(R.max, -Infinity),
+    R.map<ISBPlayer, number>(R.prop("gamesWon"))
+  )(players);
 
-  for (let i = 0; i < len - 1; i++) {
-    for (let j = i + 1; j < len; j++) {
-      if (i === j) break;
-      // we use indexes insted of IDs because MWM algorithm requires that in pairPlayer function
-      ws.push([i, j, calcWeight(highestScore, players[i], players[j])]);
-    }
-  }
+const nodes = (length: number) => Array.from({ length }, (v, k) => k++);
+const uniqPairs = (arr: number[]) =>
+  R.pipe(
+    R.chain((a: number) => R.map((b: number) => (a == b ? [] : [a, b]))(arr)),
+    R.filter(R.pipe(R.isEmpty, R.not)),
+    R.uniqBy(R.sort((a: any, b: any) => a - b))
+  )(arr);
 
-  return ws;
-}
+//@ts-ignore
+const graph = R.compose(uniqPairs, nodes, R.length);
+
+export const calcWeights = (players: ISBPlayer[]) =>
+  R.converge(
+    (pl: ISBPlayer[], pairs: [number, number][], hs: number) =>
+      R.map<[number, number], [number, number, number]>(
+        ([p1, p2]) => [p1, p2, calcWeight(hs, pl[p1], pl[p2])],
+        pairs
+      ),
+    [R.identity, graph, calcHighestScore]
+  )(players);
+
+// export function calcWeights(players: ISBPlayer[]) {
+//   const len = players.length;
+//   // get the highest score
+//   const highestScore = calcHighestScore(players);
+//   const ws = [];
+
+//   for (let i = 0; i < len - 1; i++) {
+//     for (let j = i + 1; j < len; j++) {
+//       if (i === j) break;
+//       // we use indexes insted of IDs because MWM algorithm requires that in pairPlayer function
+//       ws.push([i, j, calcWeight(highestScore, players[i], players[j])]);
+//     }
+//   }
+
+//   return ws;
+// }
 
 /**
  * Calculate weight
