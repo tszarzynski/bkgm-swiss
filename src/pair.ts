@@ -62,7 +62,7 @@ export const calcHighestScore = (players: ISBPlayer[]) =>
 const nodes = (length: number) => Array.from({ length }, (v, k) => k++);
 const uniqPairs = (arr: number[]) =>
   R.pipe(
-    R.chain((a: number) => R.map((b: number) => (a == b ? [] : [a, b]))(arr)),
+    R.chain((a: number) => R.map(b => (a == b ? [] : [a, b]))(arr)),
     R.filter(R.pipe(R.isEmpty, R.not)),
     R.uniqBy(R.sort((a: any, b: any) => a - b))
   )(arr);

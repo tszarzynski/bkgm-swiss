@@ -57,8 +57,8 @@ test("calcOMV should return correct value", () => {
     }
   ];
   expect(calcOMV(players, players[0])).toBe(0.75);
-  expect(calcOMV(players, players[1])).toBe(0.25);
-  expect(calcOMV(players, players[2])).toBe(0.25);
+  expect(calcOMV(players, players[1])).toBe(0.5);
+  expect(calcOMV(players, players[2])).toBe(0.5);
 });
 
 test("rankPlayers should return correct value", () => {
