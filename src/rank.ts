@@ -1,5 +1,5 @@
 import { ISBPlayer } from "./types";
-import { desc, sortWith } from "./utils";
+import { desc, sortWith } from "./sort";
 
 /**
  * Returns sorted list of players. Function tries to resolve tiebreaks by using 3 sorting critetias:
@@ -34,8 +34,6 @@ const listPlayerOpponents = (allPlayers: ISBPlayer[], player: ISBPlayer) =>
 const calcWinLoseRatio = (player: ISBPlayer) =>
   player.matchesWon / (player.matchesWon + player.matchesLost);
 
- 
-
 /**
  * Calculate OMV for a given player
  * @param allPlayers list of all players
@@ -43,4 +41,4 @@ const calcWinLoseRatio = (player: ISBPlayer) =>
  */
 export const calcOMV = (allPlayers: ISBPlayer[], player: ISBPlayer) =>
   listPlayerOpponents(allPlayers, player)
-    .reduce((sum, opponent, _, arr) => sum + calcWinLoseRatio(opponent) / arr.length, 0);
+    .reduce((avg, opponent, _, arr) => avg + calcWinLoseRatio(opponent) / arr.length, 0);

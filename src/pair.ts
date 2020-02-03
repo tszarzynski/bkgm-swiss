@@ -1,9 +1,8 @@
 import mwm from "edmonds-blossom";
 import * as R from "ramda";
-import { BYE_ID, NON_EXISITING_ID } from "./consts";
-import { rankPlayers } from "./rank";
-import { ISBPairing, ISBPlayer, ISBPlayerWithBye } from "./types";
-import { countOccurences, desc, sortWith } from "./utils";
+import { checkBye } from "./bye";
+import { ISBPairing, ISBPlayer } from "./types";
+import { countOccurences } from "./utils";
 
 const filterPlayersById = (players: ISBPlayer[], id: number) =>
   players.filter(p => p.ID !== id);
@@ -38,6 +37,10 @@ export function pairPlayers(players: ISBPlayer[]) {
   return nominatedID !== -1 ? [...pairings, [nominatedID, -1]] : pairings;
 }
 
+/**
+ * Returns highest score
+ * @param players 
+ */
 export const calcHighestScore = (players: ISBPlayer[]) =>
   Math.max(...players.map(p => p.gamesWon));
 
@@ -108,50 +111,4 @@ export function quality(importance: number, closeness: number) {
   return (importance + 1) ** 2 * (closeness + 1) ** 2;
 }
 
-/**
- * Check if we need to grant 'bye' to a player and return nominated player ID
- * @param players list of players
- */
-// export function checkBye(players: ISBPlayer[]) {
-//   if (players.length % 2 !== 0) {
-//     // nominate a player if number of players is odd
 
-//     const playersWithByes = rankPlayers(players).map(p => ({
-//       ID: p.ID,
-//       bye: countOccurences(p.opponents).get(BYE_ID) || 0
-//     }));
-//     const smallestBye = playersWithByes.reduce(
-//       (acc, p) => Math.min(acc, p.bye),
-//       0
-//     );
-
-//     const nominated = playersWithByes
-//       .reverse()
-//       .find(p => p.bye === smallestBye);
-
-//     return nominated ? nominated.ID : -1;
-//   } else {
-//     // no nomination if number of players is even
-//     return NON_EXISITING_ID;
-//   }
-// }
-
-const last = (arr: { ID: number }[]) => arr[arr.length - 1];
-const oddNumOfPlayers = (players: ISBPlayer[]) => players.length % 2 !== 0;
-const countByes = (opponents: number[]) =>
-  opponents.filter(id => id === BYE_ID).length;
-const playersWithByes = (players: ISBPlayer[]) =>
-  players.map(player => ({ ...player, bye: countByes(player.opponents) }));
-const sortByBye = (players: ISBPlayerWithBye[]) =>
-  sortWith<ISBPlayerWithBye>([desc("bye")], players);
-
-export const checkBye = (players: ISBPlayer[]) =>
-  oddNumOfPlayers(players)
-    ? R.pipe(
-        rankPlayers,
-        playersWithByes,
-        sortByBye,
-        last,
-        R.prop("ID")
-      )(players)
-    : NON_EXISITING_ID;

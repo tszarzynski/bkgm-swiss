@@ -1,7 +1,6 @@
 import {
   quality,
   calcHighestScore,
-  checkBye,
   calcWeight,
   calcWeights,
   pairPlayers
@@ -38,62 +37,7 @@ test("calcHighestScore should return correct value", () => {
   expect(calcHighestScore(players)).toBe(2);
 });
 
-test("checkBye should return -1 for even number of players", () => {
-  const players: ISBPlayer[] = [
-    {
-      ID: 1,
-      name: "Player 1",
-      gamesWon: 0,
-      matchesWon: 0,
-      matchesLost: 0,
-      omv: 0,
-      opponents: []
-    },
-    {
-      ID: 2,
-      name: "Player 2",
-      gamesWon: 0,
-      matchesWon: 0,
-      matchesLost: 0,
-      omv: 0,
-      opponents: []
-    }
-  ];
-  expect(checkBye(players)).toBe(-1);
-});
 
-test("checkBye should return last player with smallest BYE  number", () => {
-  const players: ISBPlayer[] = [
-    {
-      ID: 1,
-      name: "Player 1",
-      gamesWon: 1,
-      matchesWon: 1,
-      matchesLost: 0,
-      omv: 0,
-      opponents: [2]
-    },
-    {
-      ID: 2,
-      name: "Player 2",
-      gamesWon: 0,
-      matchesWon: 0,
-      matchesLost: 1,
-      omv: 0,
-      opponents: [1]
-    },
-    {
-      ID: 3,
-      name: "Player 3",
-      gamesWon: 0,
-      matchesWon: 0,
-      matchesLost: 0,
-      omv: 0,
-      opponents: [-1]
-    }
-  ];
-  expect(checkBye(players)).toBe(2);
-});
 
 test("calcWeight should return correct weight", () => {
   const player1 = {
