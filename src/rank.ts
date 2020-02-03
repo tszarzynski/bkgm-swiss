@@ -1,5 +1,5 @@
 import { ISBPlayer } from "./types";
-import * as R from "ramda";
+import { desc, sortWith } from "./utils";
 
 /**
  * Returns sorted list of players. Function tries to resolve tiebreaks by using 3 sorting critetias:
@@ -7,18 +7,17 @@ import * as R from "ramda";
  * @param players list of players
  */
 export const rankPlayers = (players: ISBPlayer[]) =>
-  R.sortWith<ISBPlayer>([
-    R.descend(R.prop("matchesWon")),
-    R.descend(R.prop("gamesWon")),
-    R.descend(R.prop("omv"))
-  ])(players);
+  sortWith<ISBPlayer>(
+    [desc("matchesWon"), desc("gamesWon"), desc("omv")],
+    players
+  );
 
 /**
  * Check if players played each other
  * @param player
  */
 const isOpponent = (player: ISBPlayer) => (possibleOpponent: ISBPlayer) =>
-  R.includes(R.prop("ID", player), R.prop("opponents", possibleOpponent));
+  possibleOpponent.opponents.includes(player.ID);
 
 /**
  * Return the list of player's opponents
@@ -26,7 +25,7 @@ const isOpponent = (player: ISBPlayer) => (possibleOpponent: ISBPlayer) =>
  * @param player
  */
 const listPlayerOpponents = (allPlayers: ISBPlayer[], player: ISBPlayer) =>
-  R.filter(isOpponent(player), allPlayers);
+  allPlayers.filter(isOpponent(player));
 
 /**
  * Return win/lose ratio
@@ -35,14 +34,13 @@ const listPlayerOpponents = (allPlayers: ISBPlayer[], player: ISBPlayer) =>
 const calcWinLoseRatio = (player: ISBPlayer) =>
   player.matchesWon / (player.matchesWon + player.matchesLost);
 
+ 
+
 /**
  * Calculate OMV for a given player
  * @param allPlayers list of all players
  * @param player player to calculate OMV for
  */
 export const calcOMV = (allPlayers: ISBPlayer[], player: ISBPlayer) =>
-  R.compose(
-    R.mean,
-    R.map(calcWinLoseRatio),
-    listPlayerOpponents
-  )(allPlayers, player);
+  listPlayerOpponents(allPlayers, player)
+    .reduce((sum, opponent, _, arr) => sum + calcWinLoseRatio(opponent) / arr.length, 0);

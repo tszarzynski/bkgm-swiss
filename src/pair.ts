@@ -1,101 +1,74 @@
-import blossom from "edmonds-blossom";
-import { countOccurences } from "./utils";
-import { ISBPlayer, ISBPairing } from "./types";
-import { rankPlayers } from "./rank";
-import { BYE_ID, NON_EXISITING_ID } from "./consts";
-
+import mwm from "edmonds-blossom";
 import * as R from "ramda";
+import { BYE_ID, NON_EXISITING_ID } from "./consts";
+import { rankPlayers } from "./rank";
+import { ISBPairing, ISBPlayer, ISBPlayerWithBye } from "./types";
+import { countOccurences, desc, sortWith } from "./utils";
+
+const filterPlayersById = (players: ISBPlayer[], id: number) =>
+  players.filter(p => p.ID !== id);
+const transformMWMToPairings = (players: ISBPlayer[]) => (mwm: number[]) =>
+  mwm.reduce<{ pairs: ISBPairing[]; paired: number[] }>(
+    (acc, node, index) => {
+      const { pairs, paired } = acc;
+      const pair = [
+        players[index].ID,
+        node !== -1 ? players[node].ID : -1
+      ] as ISBPairing;
+
+      return pair.some(id => paired.indexOf(id) !== -1)
+        ? acc
+        : { pairs: [...pairs, pair], paired: [...paired, ...pair] };
+    },
+
+    { pairs: [], paired: [] }
+  ).pairs;
 
 export function pairPlayers(players: ISBPlayer[]) {
   // check if we have a player with BYE nomination
   const nominatedID = checkBye(players);
+  const playersToPair = filterPlayersById(players, nominatedID);
 
-  // if we have a player with BYE remove him from the list
-  if (nominatedID !== -1) {
-    players = players.filter(p => p.ID !== nominatedID);
-  }
+  const pairings = R.pipe(
+    calcWeights,
+    mwm,
+    transformMWMToPairings(playersToPair)
+  )(playersToPair);
 
-  // calculate weights for graph edges
-  const ws = calcWeights(players);
-  // calculate MWM for the graph
-  const mwm: number[] = blossom(ws);
-
-  // transform pairings to use players IDs
-  const result: ISBPairing[] = mwm.map((p, index) => [
-    players[index].ID,
-    p !== -1 ? players[p].ID : -1
-  ]);
-
-  // remove duplicate pairings from the results i.e [1,3] [3,1]
-  const resultNoDup: ISBPairing[] = result.reduce<{
-    pls: number[];
-    prs: ISBPairing[];
-  }>(
-    (acc, curr) => {
-      const found = acc.pls.some(pl => curr.includes(pl));
-
-      return found
-        ? acc
-        : { pls: [...acc.pls, ...curr], prs: [...acc.prs, curr] };
-    },
-    { pls: [], prs: [] }
-  ).prs;
-
-  // add player nominated for BYE
-  if (nominatedID !== -1) {
-    resultNoDup.push([nominatedID, -1]);
-  }
-
-  return resultNoDup;
+  return nominatedID !== -1 ? [...pairings, [nominatedID, -1]] : pairings;
 }
 
-// export function calcHighestScore(players: ISBPlayer[]) {
-//   return Math.max(...players.map(p => p.gamesWon));
-// }
-
 export const calcHighestScore = (players: ISBPlayer[]) =>
-  R.compose(
-    R.reduce<number, number>(R.max, -Infinity),
-    R.map<ISBPlayer, number>(R.prop("gamesWon"))
-  )(players);
+  Math.max(...players.map(p => p.gamesWon));
 
-const nodes = (length: number) => Array.from({ length }, (v, k) => k++);
-const uniqPairs = (arr: number[]) =>
-  R.pipe(
-    R.chain((a: number) => R.map(b => (a == b ? [] : [a, b]))(arr)),
-    R.filter(R.pipe(R.isEmpty, R.not)),
-    R.uniqBy(R.sort((a: any, b: any) => a - b))
-  )(arr);
+const makeNodes = (length: number) => Array.from({ length }, (v, k) => k++);
+const makeEdges = (arr: number[]) => {
+  const len = arr.length;
+  const ws = [];
+  for (let i = 0; i < len - 1; i++) {
+    for (let j = i + 1; j < len; j++) {
+      if (i === j) break;
 
-//@ts-ignore
-const graph = R.compose(uniqPairs, nodes, R.length);
+      ws.push([i, j]);
+    }
+  }
 
-export const calcWeights = (players: ISBPlayer[]) =>
-  R.converge(
-    (pl: ISBPlayer[], pairs: [number, number][], hs: number) =>
-      R.map<[number, number], [number, number, number]>(
-        ([p1, p2]) => [p1, p2, calcWeight(hs, pl[p1], pl[p2])],
-        pairs
-      ),
-    [R.identity, graph, calcHighestScore]
-  )(players);
+  return ws;
+};
+const makeGraph = (players: ISBPlayer[]) =>
+  R.compose(makeEdges, makeNodes, (arr: any[]) => arr.length)(players);
 
-// export function calcWeights(players: ISBPlayer[]) {
-//   const len = players.length;
-//   // get the highest score
-//   const highestScore = calcHighestScore(players);
-//   const ws = [];
+export const calcWeights = (players: ISBPlayer[]) => {
+  const highestScore = calcHighestScore(players);
+  const unweightedGraph = makeGraph(players);
 
-//   for (let i = 0; i < len - 1; i++) {
-//     for (let j = i + 1; j < len; j++) {
-//       if (i === j) break;
-//       // we use indexes insted of IDs because MWM algorithm requires that in pairPlayer function
-//       ws.push([i, j, calcWeight(highestScore, players[i], players[j])]);
-//     }
-//   }
-
-//   return ws;
-// }
+  // we use indexes insted of IDs because MWM algorithm requires that in pairPlayer function
+  return unweightedGraph.map(([p1, p2]) => [
+    p1,
+    p2,
+    calcWeight(highestScore, players[p1], players[p2])
+  ]);
+};
 
 /**
  * Calculate weight
@@ -139,26 +112,46 @@ export function quality(importance: number, closeness: number) {
  * Check if we need to grant 'bye' to a player and return nominated player ID
  * @param players list of players
  */
-export function checkBye(players: ISBPlayer[]) {
-  if (players.length % 2 !== 0) {
-    // nominate a player if number of players is odd
+// export function checkBye(players: ISBPlayer[]) {
+//   if (players.length % 2 !== 0) {
+//     // nominate a player if number of players is odd
 
-    const playersWithByes = rankPlayers(players).map(p => ({
-      ID: p.ID,
-      bye: countOccurences(p.opponents).get(BYE_ID) || 0
-    }));
-    const smallestBye = playersWithByes.reduce(
-      (acc, p) => Math.min(acc, p.bye),
-      0
-    );
+//     const playersWithByes = rankPlayers(players).map(p => ({
+//       ID: p.ID,
+//       bye: countOccurences(p.opponents).get(BYE_ID) || 0
+//     }));
+//     const smallestBye = playersWithByes.reduce(
+//       (acc, p) => Math.min(acc, p.bye),
+//       0
+//     );
 
-    const nominated = playersWithByes
-      .reverse()
-      .find(p => p.bye === smallestBye);
+//     const nominated = playersWithByes
+//       .reverse()
+//       .find(p => p.bye === smallestBye);
 
-    return nominated ? nominated.ID : -1;
-  } else {
-    // no nomination if number of players is even
-    return NON_EXISITING_ID;
-  }
-}
+//     return nominated ? nominated.ID : -1;
+//   } else {
+//     // no nomination if number of players is even
+//     return NON_EXISITING_ID;
+//   }
+// }
+
+const last = (arr: { ID: number }[]) => arr[arr.length - 1];
+const oddNumOfPlayers = (players: ISBPlayer[]) => players.length % 2 !== 0;
+const countByes = (opponents: number[]) =>
+  opponents.filter(id => id === BYE_ID).length;
+const playersWithByes = (players: ISBPlayer[]) =>
+  players.map(player => ({ ...player, bye: countByes(player.opponents) }));
+const sortByBye = (players: ISBPlayerWithBye[]) =>
+  sortWith<ISBPlayerWithBye>([desc("bye")], players);
+
+export const checkBye = (players: ISBPlayer[]) =>
+  oddNumOfPlayers(players)
+    ? R.pipe(
+        rankPlayers,
+        playersWithByes,
+        sortByBye,
+        last,
+        R.prop("ID")
+      )(players)
+    : NON_EXISITING_ID;

@@ -83,7 +83,7 @@ test("checkBye should return last player with smallest BYE  number", () => {
       opponents: [1]
     },
     {
-      ID: 2,
+      ID: 3,
       name: "Player 3",
       gamesWon: 0,
       matchesWon: 0,
@@ -165,11 +165,46 @@ test("calcWeights should return correct weights", () => {
   ]);
 });
 
+test("pairPlayers should return correct pairings when tournament starts", () => {
+  const player1 = {
+    ID: 1,
+    name: "Player 1",
+    gamesWon: 0,
+    matchesWon: 0,
+    matchesLost: 0,
+    omv: 0,
+    opponents: []
+  };
+  const player2 = {
+    ID: 2,
+    name: "Player 2",
+    gamesWon: 0,
+    matchesWon: 0,
+    matchesLost: 0,
+    omv: 0,
+    opponents: []
+  };
+  const player3 = {
+    ID: 3,
+    name: "Player 3",
+    gamesWon: 0,
+    matchesWon: 0,
+    matchesLost: 0,
+    omv: 0,
+    opponents: []
+  };
+
+  expect(pairPlayers([player1, player2, player3])).toStrictEqual([
+    [1, 2],
+    [3, -1]
+  ]);
+});
+
 test("pairPlayers should return correct pairings", () => {
   const player1 = {
     ID: 1,
     name: "Player 1",
-    gamesWon: 1,
+    gamesWon: 2,
     matchesWon: 1,
     matchesLost: 0,
     omv: 0,
@@ -188,7 +223,7 @@ test("pairPlayers should return correct pairings", () => {
     ID: 3,
     name: "Player 3",
     gamesWon: 0,
-    matchesWon: 0,
+    matchesWon: 1,
     matchesLost: 0,
     omv: 0,
     opponents: [-1]
