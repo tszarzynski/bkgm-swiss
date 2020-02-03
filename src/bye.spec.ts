@@ -1,4 +1,4 @@
-import { checkBye } from "./bye";
+import { nominatePlayerForBye } from "./bye";
 import { ISBPlayer } from "./types";
 
 test("checkBye should return -1 for even number of players", () => {
@@ -22,7 +22,7 @@ test("checkBye should return -1 for even number of players", () => {
         opponents: []
       }
     ];
-    expect(checkBye(players)).toBe(-1);
+    expect(nominatePlayerForBye(players)).toBe(-1);
   });
   
   test("checkBye should return last player with smallest BYE  number", () => {
@@ -55,5 +55,5 @@ test("checkBye should return -1 for even number of players", () => {
         opponents: [-1]
       }
     ];
-    expect(checkBye(players)).toBe(2);
+    expect(nominatePlayerForBye(players)).toBe(2);
   });

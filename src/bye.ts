@@ -19,7 +19,7 @@ const sortByBye = (players: ISBPlayerWithBye[]) =>
  * Check if we need to grant 'bye' to a player and return nominated player ID
  * @param players list of players
  */
-export const checkBye = (players: ISBPlayer[]) =>
+export const nominatePlayerForBye = (players: ISBPlayer[]) =>
   hasOddNumOfPlayers(players)
     ? R.pipe(
         rankPlayers,
