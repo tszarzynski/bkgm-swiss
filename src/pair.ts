@@ -6,6 +6,8 @@ import { countOccurences } from "./utils";
 
 const filterPlayersById = (players: ISBPlayer[], id: number) =>
   players.filter(p => p.ID !== id);
+
+
 const transformMWMToPairings = (players: ISBPlayer[]) => (mwm: number[]) =>
   mwm.reduce<{ pairs: ISBPairing[]; paired: number[] }>(
     (acc, node, index) => {
@@ -44,6 +46,7 @@ export function pairPlayers(players: ISBPlayer[]) {
 export const calcHighestScore = (players: ISBPlayer[]) =>
   Math.max(...players.map(p => p.gamesWon));
 
+  
 const makeNodes = (length: number) => Array.from({ length }, (v, k) => k++);
 const makeEdges = (arr: number[]) => {
   const len = arr.length;

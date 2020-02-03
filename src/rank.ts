@@ -40,5 +40,7 @@ const calcWinLoseRatio = (player: ISBPlayer) =>
  * @param player player to calculate OMV for
  */
 export const calcOMV = (allPlayers: ISBPlayer[], player: ISBPlayer) =>
-  listPlayerOpponents(allPlayers, player)
-    .reduce((avg, opponent, _, arr) => avg + calcWinLoseRatio(opponent) / arr.length, 0);
+  listPlayerOpponents(allPlayers, player).reduce(
+    (avg, opponent, _, arr) => avg + calcWinLoseRatio(opponent) / arr.length,
+    0
+  );

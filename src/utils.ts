@@ -34,10 +34,18 @@ export function prop<T, P extends keyof T>(
   };
 }
 
+/**
+ * Check if number is odd
+ * @param n Number
+ */
 export function isOdd(n:number) {
   return n % 2 !== 0
 }
 
+/**
+ * Check if number is even
+ * @param n Number
+ */
 export function isEven(n:number) {
   return !isOdd(n)
 }

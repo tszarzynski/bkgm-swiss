@@ -17,7 +17,7 @@ test("sorWith should return soretd array", () => {
   ]);
 });
 
-test("sorWith should return array by secondary key", () => {
+test("sorWith should return array sorted by secondary key", () => {
     const arr = [
       { primary: 1, secondary: 2 },
       { primary: 1, secondary: 1 }
