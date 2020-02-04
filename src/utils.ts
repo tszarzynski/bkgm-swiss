@@ -17,3 +17,37 @@ export function countOccurences(arr: number[]) {
     new Map<number, number>()
   );
 }
+
+/**
+ * Returns last element from array
+ * @param arr
+ */
+export function last(arr: any[]) {
+  return arr[arr.length - 1];
+}
+
+export function prop<T, P extends keyof T>(
+  propName: P
+): (obj: T) => T[P] {
+  return function(obj: T) {
+    return obj[propName];
+  };
+}
+
+/**
+ * Check if number is odd
+ * @param n Number
+ */
+export function isOdd(n:number) {
+  return n % 2 !== 0
+}
+
+/**
+ * Check if number is even
+ * @param n Number
+ */
+export function isEven(n:number) {
+  return !isOdd(n)
+}
+
+

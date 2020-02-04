@@ -1,39 +1,46 @@
 import { ISBPlayer } from "./types";
+import { desc, sortWith } from "./sort";
 
 /**
  * Returns sorted list of players. Function tries to resolve tiebreaks by using 3 sorting critetias:
  * number of matches won, number of games won and OMV.
  * @param players list of players
  */
-export function rankPlayers(players: ISBPlayer[]) {
-  return players.sort((p1, p2) => {
-    if (p1.matchesWon > p2.matchesWon) return -1;
-    if (p1.matchesWon < p2.matchesWon) return 1;
+export const rankPlayers = (players: ISBPlayer[]) =>
+  sortWith<ISBPlayer>(
+    [desc("matchesWon"), desc("gamesWon"), desc("omv")],
+    players
+  );
 
-    if (p1.gamesWon > p2.gamesWon) return -1;
-    if (p1.gamesWon < p2.gamesWon) return 1;
+/**
+ * Check if players played each other
+ * @param player
+ */
+const isOpponent = (player: ISBPlayer) => (possibleOpponent: ISBPlayer) =>
+  possibleOpponent.opponents.includes(player.ID);
 
-    if (p1.omv > p2.omv) return -1;
-    if (p1.omv < p2.omv) return 1;
+/**
+ * Return the list of player's opponents
+ * @param allPlayers list of all players
+ * @param player
+ */
+const listPlayerOpponents = (allPlayers: ISBPlayer[], player: ISBPlayer) =>
+  allPlayers.filter(isOpponent(player));
 
-    return 0;
-  });
-}
+/**
+ * Return win/lose ratio
+ * @param opponent
+ */
+const calcWinLoseRatio = (player: ISBPlayer) =>
+  player.matchesWon / (player.matchesWon + player.matchesLost);
 
 /**
  * Calculate OMV for a given player
- * @param players list of all players
- * @param pl player to calculate OMV for
+ * @param allPlayers list of all players
+ * @param player player to calculate OMV for
  */
-export function calcOMV(players: ISBPlayer[], pl: ISBPlayer) {
-  return (
-    players
-      .filter(p => pl.opponents.includes(p.ID)) //find opponents
-      .reduce(
-        (acc, opponent) =>
-          acc +
-          opponent.matchesWon / (opponent.matchesWon + opponent.matchesLost), //calcualte average
-        0
-      ) / pl.opponents.length
+export const calcOMV = (allPlayers: ISBPlayer[], player: ISBPlayer) =>
+  listPlayerOpponents(allPlayers, player).reduce(
+    (avg, opponent, _, arr) => avg + calcWinLoseRatio(opponent) / arr.length,
+    0
   );
-}

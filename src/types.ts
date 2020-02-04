@@ -1,3 +1,5 @@
+type ISBPlayerID = number;
+
 export interface ISBPlayer {
   ID: number;
   name?: string;
@@ -8,4 +10,16 @@ export interface ISBPlayer {
   opponents: number[];
 }
 
-export type ISBPairing = [number, number];
+export interface ISBPlayerWithBye extends ISBPlayer {
+  bye: number;
+}
+
+/**
+ * Represents player paring
+ */
+export type ISBPairing = [ISBPlayerID, ISBPlayerID];
+
+/**
+ * Helper for graph operations [node,node,weight]
+ */
+export type ISBGraphEdge = [number, number, number];
