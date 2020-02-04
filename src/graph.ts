@@ -13,7 +13,7 @@ export const calcHighestScore = (players: ISBPlayer[]) =>
  * Returns graph nodes
  * @param length Number of nodes
  */
-const makeNodes = (length: number) => Array.from({ length }, (v, k) => k++);
+const makeNodes = (length: number) => Array.from<number, number>({ length }, (v, k) => k++);
 /**
  *  Returns graph edges
  * @param arr Nodes
