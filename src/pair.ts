@@ -1,4 +1,4 @@
-import * as R from "ramda";
+import { pipe } from "ramda";
 import { nominatePlayerForBye } from "./bye";
 import { makeWeightedGraph } from "./graph";
 import { calcMWMForGraph, transformMWMToPairings } from "./mwm";
@@ -13,7 +13,7 @@ export function pairPlayers(players: ISBPlayer[]) {
   // remove nominated player from the list
   const playersToPair = rejectPlayerById(players, nominatedID);
 
-  const pairings = R.pipe(
+  const pairings = pipe(
     makeWeightedGraph,
     calcMWMForGraph,
     transformMWMToPairings(playersToPair)

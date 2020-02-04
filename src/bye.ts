@@ -1,13 +1,12 @@
-import * as R from "ramda";
+import { pipe } from "ramda";
 
 import { BYE_ID, NON_EXISITING_ID } from "./consts";
 import { rankPlayers } from "./rank";
-import { desc ,sortWith} from "./sort";
+import { desc, sortWith } from "./sort";
 import { ISBPlayer, ISBPlayerWithBye } from "./types";
 import { last, prop, isOdd } from "./utils";
 
-
-const hasOddNumOfPlayers = (players: ISBPlayer[]) => isOdd(players.length)
+const hasOddNumOfPlayers = (players: ISBPlayer[]) => isOdd(players.length);
 const countByes = (opponents: number[]) =>
   opponents.filter(id => id === BYE_ID).length;
 const playersWithByes = (players: ISBPlayer[]) =>
@@ -21,11 +20,5 @@ const sortByBye = (players: ISBPlayerWithBye[]) =>
  */
 export const nominatePlayerForBye = (players: ISBPlayer[]) =>
   hasOddNumOfPlayers(players)
-    ? R.pipe(
-        rankPlayers,
-        playersWithByes,
-        sortByBye,
-        last,
-        prop('ID')
-      )(players)
+    ? pipe(rankPlayers, playersWithByes, sortByBye, last, prop("ID"))(players)
     : NON_EXISITING_ID;

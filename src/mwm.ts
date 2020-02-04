@@ -1,5 +1,5 @@
 import mwm from "edmonds-blossom";
-import { ISBPairing, ISBPlayer, ISBGraphNode } from "./types";
+import { ISBPairing, ISBPlayer, ISBGraphEdge } from "./types";
 
 export const transformMWMToPairings = (players: ISBPlayer[]) => (
   mwm: number[]
@@ -24,4 +24,4 @@ export const transformMWMToPairings = (players: ISBPlayer[]) => (
  * Calculate MWM for given graph
  * @param graph
  */
-export const calcMWMForGraph = (graph: ISBGraphNode[]) => mwm(graph);
+export const calcMWMForGraph = (graph: ISBGraphEdge[]) => mwm(graph);

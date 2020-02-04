@@ -1,11 +1,10 @@
-import * as R from "ramda";
-import { ISBPlayer, ISBGraphNode as ISBGraphEdge } from "./types";
+import { compose } from "ramda";
+import { ISBPlayer, ISBGraphEdge } from "./types";
 import { countOccurences } from "./utils";
-
 
 /**
  * Returns highest score
- * @param players 
+ * @param players
  */
 export const calcHighestScore = (players: ISBPlayer[]) =>
   Math.max(...players.map(p => p.gamesWon));
@@ -35,25 +34,28 @@ const makeEdges = (arr: number[]) => {
 
 /**
  * Returns unweighted graph
- * @param players 
+ * @param players
  */
 const makeUnweightedGraph = (players: ISBPlayer[]) =>
-  R.compose(makeEdges, makeNodes, (arr: any[]) => arr.length)(players);
+  compose(makeEdges, makeNodes, (arr: any[]) => arr.length)(players);
 
-  /**
-   * Returns weighted graph
-   * @param players 
-   */
+/**
+ * Returns weighted graph
+ * @param players
+ */
 export const makeWeightedGraph = (players: ISBPlayer[]) => {
   const highestScore = calcHighestScore(players);
   const unweightedGraph = makeUnweightedGraph(players);
 
   // we use indexes insted of IDs because MWM algorithm requires that in pairPlayer function
-  return unweightedGraph.map(([p1, p2]) => [
-    p1,
-    p2,
-    calcEdgeWeight(highestScore, players[p1], players[p2])
-  ] as ISBGraphEdge);
+  return unweightedGraph.map(
+    ([p1, p2]) =>
+      [
+        p1,
+        p2,
+        calcEdgeWeight(highestScore, players[p1], players[p2])
+      ] as ISBGraphEdge
+  );
 };
 
 /**
