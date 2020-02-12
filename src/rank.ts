@@ -1,5 +1,5 @@
-import { ISBPlayer } from "./types";
-import { desc, sortWith } from "./sort";
+import { ISBPlayer } from './types';
+import { desc, sortWith } from './sort';
 
 /**
  * Returns sorted list of players. Function tries to resolve tiebreaks by using 3 sorting critetias:
@@ -8,7 +8,7 @@ import { desc, sortWith } from "./sort";
  */
 export const rankPlayers = (players: ISBPlayer[]) =>
   sortWith<ISBPlayer>(
-    [desc("matchesWon"), desc("gamesWon"), desc("omv")],
+    [desc('matchesWon'), desc('gamesWon'), desc('omv')],
     players
   );
 

@@ -1,6 +1,6 @@
-import { pairPlayers } from "./pair";
-import { calcOMV, rankPlayers } from "./rank";
-import { ISBPairing, ISBPlayer } from "./types";
+import { pairPlayers } from './tournament/swiss/pair';
+import { calcOMV, rankPlayers } from './rank';
+import { ISBPairing, ISBPlayer } from './types';
 
 export function playRound(players: ISBPlayer[]): ISBPlayer[] {
   // make pairs
@@ -17,7 +17,7 @@ export function playRound(players: ISBPlayer[]): ISBPlayer[] {
   });
   roundResults = roundResults.map(pl => ({
     ...pl,
-    omv: calcOMV(roundResults, pl)
+    omv: calcOMV(roundResults, pl),
   }));
 
   return rankPlayers(roundResults);
@@ -28,7 +28,7 @@ function updatePlayer(pl: ISBPlayer, props: Partial<ISBPlayer>): ISBPlayer {
 }
 
 function playMatch([pr1, pr2]: ISBPairing, players: ISBPlayer[]) {
-  console.log("Playing: " + pr1 + " vs " + pr2);
+  console.log('Playing: ' + pr1 + ' vs ' + pr2);
   const pl1 = players.find(p => p.ID === pr1)!;
   const pl2 = players.find(p => p.ID === pr2)!;
 
@@ -47,7 +47,7 @@ function playMatch([pr1, pr2]: ISBPairing, players: ISBPlayer[]) {
       matchesLost:
         pl1GamesWon < pl2GamesWon ? pl1.matchesLost + 1 : pl1.matchesLost,
 
-      opponents: [...pl1.opponents, pl2.ID]
+      opponents: [...pl1.opponents, pl2.ID],
     }),
     updatePlayer(pl2, {
       gamesWon: pl2.gamesWon + matchResult.filter(r => r === pl2.ID).length,
@@ -55,8 +55,8 @@ function playMatch([pr1, pr2]: ISBPairing, players: ISBPlayer[]) {
         pl1GamesWon < pl2GamesWon ? pl2.matchesWon + 1 : pl2.matchesWon,
       matchesLost:
         pl1GamesWon > pl2GamesWon ? pl2.matchesLost + 1 : pl2.matchesLost,
-      opponents: [...pl2.opponents, pl1.ID]
-    })
+      opponents: [...pl2.opponents, pl1.ID],
+    }),
   ];
 }
 
@@ -64,12 +64,12 @@ function checkIfBye([pr1, pr2]: ISBPairing) {
   return pr1 === -1 || pr2 === -1;
 }
 function playBye([pr1, pr2]: ISBPairing, players: ISBPlayer[]) {
-  console.log("Playing BYE");
+  console.log('Playing BYE');
   const pl = players.find(p => p.ID === pr1 || p.ID === pr2)!;
   return [
     updatePlayer(pl, {
       matchesWon: pl.matchesWon + 1,
-      opponents: [...pl.opponents, -1]
-    })
+      opponents: [...pl.opponents, -1],
+    }),
   ];
 }

@@ -11,7 +11,7 @@
   "keywords": [],
   "scripts": {
     "test": "jest",
-    "test-watch": "jest --watch",
+    "test:watch": "jest --watch",
     "check": "gts check",
     "clean": "gts clean",
     "compile": "tsc -p .",

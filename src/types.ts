@@ -1,3 +1,5 @@
+type TournamentType = "SWISS" | "ROUNDROBIN";
+
 type ISBPlayerID = number;
 
 export interface ISBPlayer {

@@ -1,5 +1,5 @@
-import mwm from "edmonds-blossom";
-import { ISBPairing, ISBPlayer, ISBGraphEdge } from "./types";
+import mwm from 'edmonds-blossom';
+import { ISBPairing, ISBPlayer, ISBGraphEdge } from '../../types';
 
 export const transformMWMToPairings = (players: ISBPlayer[]) => (
   mwm: number[]
@@ -9,7 +9,7 @@ export const transformMWMToPairings = (players: ISBPlayer[]) => (
       const { pairs, paired } = acc;
       const pair = [
         players[index].ID,
-        node !== -1 ? players[node].ID : -1
+        node !== -1 ? players[node].ID : -1,
       ] as ISBPairing;
 
       return pair.some(id => paired.indexOf(id) !== -1)

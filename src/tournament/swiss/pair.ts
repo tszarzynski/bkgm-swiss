@@ -2,17 +2,13 @@ import { pipe } from "ramda";
 import { nominatePlayerForBye } from "./bye";
 import { makeWeightedGraph } from "./graph";
 import { calcMWMForGraph, transformMWMToPairings } from "./mwm";
-import { ISBPlayer, ISBPairing } from "./types";
-import { shiftArray, toPairs } from "./roundrobin";
-
-const rejectPlayerById = (players: ISBPlayer[], id: number) =>
-  players.filter(p => p.ID !== id);
+import { ISBPlayer, ISBPairing } from "../../types";
 
 export function pairPlayers(players: ISBPlayer[]) {
   // check if we have a player with BYE nomination
   const nominatedID = nominatePlayerForBye(players);
   // remove nominated player from the list
-  const playersToPair = rejectPlayerById(players, nominatedID);
+  const playersToPair = players.filter(p => p.ID !== nominatedID);
 
   const pairings = pipe(
     makeWeightedGraph,
@@ -23,13 +19,4 @@ export function pairPlayers(players: ISBPlayer[]) {
   return nominatedID !== -1
     ? ([...pairings, [nominatedID, -1]] as ISBPairing[])
     : pairings;
-}
-
-export function pairPlayersRR(players: ISBPlayer[]) {
-  const shiftBy = Math.min(...players.map(players => players.opponents.length));
-  const shifted = shiftArray(
-    players.map(player => player.ID),
-    shiftBy
-  );
-  return toPairs(shifted);
 }
