@@ -1,9 +1,9 @@
 import { pairPlayers } from '../tournament/swiss/pair';
 import { rankPlayers } from '../rank';
-import { Pairing, PlayerWithResults } from '../types';
+import { Pairing, PlayerWithResults, PlayerWithStats } from '../types';
 import { calcOMV } from '../omv';
 
-export function playRound(players: PlayerWithResults[]): PlayerWithResults[] {
+export function playRound(players: PlayerWithStats[]): PlayerWithStats[] {
   // make pairs
   const pairings = pairPlayers(players);
 
@@ -16,12 +16,12 @@ export function playRound(players: PlayerWithResults[]): PlayerWithResults[] {
       roundResults = roundResults.concat(playMatch(pair, players));
     }
   });
-  roundResults = roundResults.map(pl => ({
+  const roundResultsWithStats = roundResults.map(pl => ({
     ...pl,
     omv: calcOMV(roundResults, pl),
-  }));
+  })) as PlayerWithStats[];
 
-  return rankPlayers(roundResults);
+  return rankPlayers(roundResultsWithStats);
 }
 
 function updatePlayer(pl: PlayerWithResults, props: Partial<PlayerWithResults>): PlayerWithResults {
@@ -64,7 +64,7 @@ function playMatch([pr1, pr2]: Pairing, players: PlayerWithResults[]) {
 function checkIfBye([pr1, pr2]: Pairing) {
   return pr1 === -1 || pr2 === -1;
 }
-function playBye([pr1, pr2]: Pairing, players: PlayerWithResults[]) {
+function playBye([pr1, pr2]: Pairing, players: PlayerWithStats[]) {
   console.log('Playing BYE');
   const pl = players.find(p => p.ID === pr1 || p.ID === pr2)!;
   return [

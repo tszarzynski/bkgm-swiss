@@ -1,8 +1,8 @@
 import { playRound } from './round';
-import { PlayerWithResults } from '../types';
+import { PlayerWithResults, PlayerWithStats } from '../types';
 import { roundsNeeded } from '../tournament/swiss/rounds';
 
-const players: PlayerWithResults[] = [
+const players: PlayerWithStats[] = [
   { ID: 0, matchesWon: 0, matchesLost: 0, omv: 0, gamesWon: 0, opponents: [] },
   { ID: 1, matchesWon: 0, matchesLost: 0, omv: 0, gamesWon: 0, opponents: [] },
   { ID: 2, matchesWon: 0, matchesLost: 0, omv: 0, gamesWon: 0, opponents: [] },
@@ -11,8 +11,8 @@ const players: PlayerWithResults[] = [
   { ID: 5, matchesWon: 0, matchesLost: 0, omv: 0, gamesWon: 0, opponents: [] },
 ];
 
-function tournament(players: PlayerWithResults[]) {
-  const numRounds = roundsNeeded(players.length, 1);
+function tournament(players: PlayerWithStats[]) {
+  const numRounds = roundsNeeded(1)(players.length);
   let round = 0;
 
   while (round++ < numRounds) {
