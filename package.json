@@ -11,7 +11,7 @@
   "keywords": [],
   "scripts": {
     "test": "jest",
-    "test-watch": "jest --watch",
+    "test:watch": "jest --watch",
     "check": "gts check",
     "clean": "gts clean",
     "compile": "tsc -p .",
@@ -26,6 +26,7 @@
     "@types/jest": "^24.0.23",
     "@types/node": "^10.17.6",
     "@types/ramda": "^0.26.40",
+    "@types/uuid": "^3.4.7",
     "gts": "^1.1.2",
     "jest": "^24.9.0",
     "ts-jest": "^24.2.0",
@@ -33,6 +34,7 @@
   },
   "dependencies": {
     "edmonds-blossom": "^1.0.0",
-    "ramda": "^0.26.1"
+    "ramda": "^0.26.1",
+    "uuid": "^3.4.0"
   }
 }

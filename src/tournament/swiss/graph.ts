@@ -1,19 +1,20 @@
 import { compose } from "ramda";
-import { ISBPlayer, ISBGraphEdge } from "./types";
-import { countOccurences } from "./utils";
+import { PlayerWithResults, GraphEdge } from "../../types";
+import { countOccurences } from "../../utils";
 
 /**
  * Returns highest score
  * @param players
  */
-export const calcHighestScore = (players: ISBPlayer[]) =>
+export const calcHighestScore = (players: PlayerWithResults[]) =>
   Math.max(...players.map(p => p.gamesWon));
 
 /**
  * Returns graph nodes
  * @param length Number of nodes
  */
-const makeNodes = (length: number) => Array.from({ length }, (v, k) => k++);
+const makeNodes = (length: number) =>
+  Array.from<number, number>({ length }, (v, k) => k++);
 /**
  *  Returns graph edges
  * @param arr Nodes
@@ -36,14 +37,14 @@ const makeEdges = (arr: number[]) => {
  * Returns unweighted graph
  * @param players
  */
-const makeUnweightedGraph = (players: ISBPlayer[]) =>
-  compose(makeEdges, makeNodes, (arr: any[]) => arr.length)(players);
+const makeUnweightedGraph = (players: PlayerWithResults[]) =>
+  compose(makeEdges, makeNodes)(players.length);
 
 /**
  * Returns weighted graph
  * @param players
  */
-export const makeWeightedGraph = (players: ISBPlayer[]) => {
+export const makeWeightedGraph = (players: PlayerWithResults[]) => {
   const highestScore = calcHighestScore(players);
   const unweightedGraph = makeUnweightedGraph(players);
 
@@ -54,36 +55,40 @@ export const makeWeightedGraph = (players: ISBPlayer[]) => {
         p1,
         p2,
         calcEdgeWeight(highestScore, players[p1], players[p2])
-      ] as ISBGraphEdge
+      ] as GraphEdge
   );
 };
 
 /**
  * Calculate weight
  * @param highestScore Highest score among all players
- * @param pl1 First player
- * @param pl2 Second player
+ * @param player1 First player
+ * @param player2 Second player
  */
 export function calcEdgeWeight(
   highestScore: number,
-  pl1: ISBPlayer,
-  pl2: ISBPlayer
+  player1: PlayerWithResults,
+  player2: PlayerWithResults
 ) {
   let w = 0;
   // count how mant times pl1 played other players
-  const opponents = countOccurences(pl1.opponents);
-  if (opponents.size > 0) {
-    if (
-      (opponents.get(pl2.ID) || 0) < Math.max(...Array.from(opponents.values()))
-    ) {
+  const numPlayedOpponents = countOccurences(player1.opponents);
+  // most played opponent count
+  const maxNumPlayedOpponents = Math.max(
+    ...Array.from(numPlayedOpponents.values())
+  );
+  const numPlayedEachOther = numPlayedOpponents.get(player2.ID) || 0;
+
+  if (numPlayedOpponents.size > 0) {
+    if (numPlayedEachOther < maxNumPlayedOpponents) {
       // if pl1 played more games with other players and weight
       w += quality(highestScore, highestScore) + 1;
     }
   }
 
   // Determine a score for the quality of this pairing based on the points of the higher scoring participant of the two (importance) and how close the two participant's records are.
-  const best = Math.max(pl1.gamesWon, pl2.gamesWon);
-  const worst = Math.min(pl1.gamesWon, pl2.gamesWon);
+  const best = Math.max(player1.gamesWon, player2.gamesWon); 
+  const worst = Math.min(player1.gamesWon, player2.gamesWon);
   const spread = best - worst;
   const closenes = highestScore - spread;
   const importnace = best;

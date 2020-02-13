@@ -1,15 +1,4 @@
-import {
-  roundsNeeded,
-  countOccurences,
-  last,
-  prop,
-  isOdd,
-  isEven
-} from "./utils";
-
-test("roundsNeeded should calculate number of rounds", () => {
-  expect(roundsNeeded(6, 1)).toBe(3);
-});
+import { countOccurences, isEven, isOdd, last } from "./utils";
 
 test("countOccurences should return", () => {
   const arr = [1, 2, 2];
