@@ -5,4 +5,4 @@ import { Match, Player, PlayerWithStats } from "./types";
  * @param players list of players
  */
 export declare const rankPlayers: (players: PlayerWithStats[]) => PlayerWithStats[];
-export declare const getRanking: (players: Player[], results: Match[]) => (x0: Player[], x1: Match[]) => PlayerWithStats[];
+export declare const getRanking: (players: Player[], results: Match[]) => PlayerWithStats[];

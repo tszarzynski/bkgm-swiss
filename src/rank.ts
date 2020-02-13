@@ -16,4 +16,8 @@ export const rankPlayers = (players: PlayerWithStats[]) =>
   ])(players);
 
 export const getRanking = (players: Player[], results: Match[]) =>
-  compose(rankPlayers, makePlayersWithStats, makePlayersWithResults);
+  compose(
+    rankPlayers,
+    makePlayersWithStats,
+    makePlayersWithResults
+  )(players, results);

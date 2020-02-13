@@ -13,5 +13,5 @@ exports.rankPlayers = (players) => sort_1.sortWith([
     sort_1.desc("gamesWon"),
     sort_1.desc("omv")
 ])(players);
-exports.getRanking = (players, results) => ramda_1.compose(exports.rankPlayers, players_1.makePlayersWithStats, players_1.makePlayersWithResults);
+exports.getRanking = (players, results) => ramda_1.compose(exports.rankPlayers, players_1.makePlayersWithStats, players_1.makePlayersWithResults)(players, results);
 //# sourceMappingURL=rank.js.map
