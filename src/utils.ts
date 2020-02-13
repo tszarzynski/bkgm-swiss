@@ -1,3 +1,4 @@
+import { Match } from "./types";
 
 /**
  * Count occurances of elements in Array
@@ -38,4 +39,8 @@ export function isOdd(n: number) {
  */
 export function isEven(n: number) {
   return !isOdd(n);
+}
+
+export function calcNumRoundsFromResults(results: Match[]) {
+  return new Set(results.map(results => results.roundID)).size;
 }

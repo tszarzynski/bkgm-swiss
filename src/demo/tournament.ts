@@ -1,8 +1,8 @@
 import { playRound } from './round';
-import { ISBPlayer } from './types';
-import { roundsNeeded } from './utils';
+import { PlayerWithResults } from '../types';
+import { roundsNeeded } from '../tournament/swiss/rounds';
 
-const players: ISBPlayer[] = [
+const players: PlayerWithResults[] = [
   { ID: 0, matchesWon: 0, matchesLost: 0, omv: 0, gamesWon: 0, opponents: [] },
   { ID: 1, matchesWon: 0, matchesLost: 0, omv: 0, gamesWon: 0, opponents: [] },
   { ID: 2, matchesWon: 0, matchesLost: 0, omv: 0, gamesWon: 0, opponents: [] },
@@ -11,7 +11,7 @@ const players: ISBPlayer[] = [
   { ID: 5, matchesWon: 0, matchesLost: 0, omv: 0, gamesWon: 0, opponents: [] },
 ];
 
-function tournament(players: ISBPlayer[]) {
+function tournament(players: PlayerWithResults[]) {
   const numRounds = roundsNeeded(players.length, 1);
   let round = 0;
 

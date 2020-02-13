@@ -1,12 +1,12 @@
 import { compose } from "ramda";
-import { ISBPlayer, ISBGraphEdge } from "../../types";
+import { PlayerWithResults, GraphEdge } from "../../types";
 import { countOccurences } from "../../utils";
 
 /**
  * Returns highest score
  * @param players
  */
-export const calcHighestScore = (players: ISBPlayer[]) =>
+export const calcHighestScore = (players: PlayerWithResults[]) =>
   Math.max(...players.map(p => p.gamesWon));
 
 /**
@@ -37,14 +37,14 @@ const makeEdges = (arr: number[]) => {
  * Returns unweighted graph
  * @param players
  */
-const makeUnweightedGraph = (players: ISBPlayer[]) =>
+const makeUnweightedGraph = (players: PlayerWithResults[]) =>
   compose(makeEdges, makeNodes)(players.length);
 
 /**
  * Returns weighted graph
  * @param players
  */
-export const makeWeightedGraph = (players: ISBPlayer[]) => {
+export const makeWeightedGraph = (players: PlayerWithResults[]) => {
   const highestScore = calcHighestScore(players);
   const unweightedGraph = makeUnweightedGraph(players);
 
@@ -55,7 +55,7 @@ export const makeWeightedGraph = (players: ISBPlayer[]) => {
         p1,
         p2,
         calcEdgeWeight(highestScore, players[p1], players[p2])
-      ] as ISBGraphEdge
+      ] as GraphEdge
   );
 };
 
@@ -67,12 +67,13 @@ export const makeWeightedGraph = (players: ISBPlayer[]) => {
  */
 export function calcEdgeWeight(
   highestScore: number,
-  player1: ISBPlayer,
-  player2: ISBPlayer
+  player1: PlayerWithResults,
+  player2: PlayerWithResults
 ) {
   let w = 0;
   // count how mant times pl1 played other players
   const numPlayedOpponents = countOccurences(player1.opponents);
+  // most played opponent count
   const maxNumPlayedOpponents = Math.max(
     ...Array.from(numPlayedOpponents.values())
   );
@@ -86,7 +87,7 @@ export function calcEdgeWeight(
   }
 
   // Determine a score for the quality of this pairing based on the points of the higher scoring participant of the two (importance) and how close the two participant's records are.
-  const best = Math.max(player1.gamesWon, player2.gamesWon);
+  const best = Math.max(player1.gamesWon, player2.gamesWon); 
   const worst = Math.min(player1.gamesWon, player2.gamesWon);
   const spread = best - worst;
   const closenes = highestScore - spread;

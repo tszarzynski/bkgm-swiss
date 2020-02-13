@@ -1,27 +1,52 @@
-type TournamentType = "SWISS" | "ROUNDROBIN";
+type PlayerID = number;
 
-type ISBPlayerID = number;
-
-export interface ISBPlayer {
-  ID: number;
+export interface Player {
+  ID: PlayerID;
   name?: string;
+  seed?: number;
+}
+
+export type Results = {
   gamesWon: number;
   matchesWon: number;
   matchesLost: number;
+  opponents: PlayerID[];
+};
+
+export type Stats = {
   omv: number;
-  opponents: number[];
 }
 
-export interface ISBPlayerWithBye extends ISBPlayer {
+export interface PlayerWithResults extends Player, Results {}
+
+export interface PlayerWithStats extends Player, Results, Stats {}
+
+export interface PlayerWithBye extends Player {
   bye: number;
 }
 
+export type Match = {
+  ID: string;
+  roundID: number;
+  pairing: Pairing;
+  result: [number, number];
+  hasBye: boolean;
+};
+
 /**
- * Represents player paring
+ * Represents players paring
  */
-export type ISBPairing = [ISBPlayerID, ISBPlayerID];
+export type Pairing = [PlayerID, PlayerID];
 
 /**
  * Helper for graph operations [node,node,weight]
  */
-export type ISBGraphEdge = [number, number, number];
+export type GraphEdge = [number, number, number];
+
+
+export type TournamentType = "SWISS" | "ROUNDROBIN";
+
+export interface Tournament {
+  makeRound: (players: Player[], results: Match[], roundID: number)=> Match[];
+  roundsNeeded: (numPlayers: number) => number
+}

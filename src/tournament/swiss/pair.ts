@@ -2,9 +2,10 @@ import { pipe } from "ramda";
 import { nominatePlayerForBye } from "./bye";
 import { makeWeightedGraph } from "./graph";
 import { calcMWMForGraph, transformMWMToPairings } from "./mwm";
-import { ISBPlayer, ISBPairing } from "../../types";
+import { PlayerWithResults, Pairing } from "../../types";
+import { BYE_ID } from "../../consts";
 
-export function pairPlayers(players: ISBPlayer[]) {
+export function pairPlayers(players: PlayerWithResults[]) {
   // check if we have a player with BYE nomination
   const nominatedID = nominatePlayerForBye(players);
   // remove nominated player from the list
@@ -16,7 +17,7 @@ export function pairPlayers(players: ISBPlayer[]) {
     transformMWMToPairings(playersToPair)
   )(playersToPair);
 
-  return nominatedID !== -1
-    ? ([...pairings, [nominatedID, -1]] as ISBPairing[])
+  return nominatedID !== BYE_ID
+    ? ([...pairings, [nominatedID, BYE_ID]] as Pairing[])
     : pairings;
 }

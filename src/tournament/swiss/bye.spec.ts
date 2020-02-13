@@ -1,8 +1,8 @@
 import { nominatePlayerForBye } from "./bye";
-import { ISBPlayer } from "../../types";
+import { PlayerWithStats } from "../../types";
 
 test("checkBye should return -1 for even number of players", () => {
-  const players: ISBPlayer[] = [
+  const players: PlayerWithStats[] = [
     {
       ID: 1,
       name: "Player 1",
@@ -26,7 +26,7 @@ test("checkBye should return -1 for even number of players", () => {
 });
 
 test("checkBye should return last player with smallest BYE  number", () => {
-  const players: ISBPlayer[] = [
+  const players: PlayerWithStats[] = [
     {
       ID: 1,
       name: "Player 1",

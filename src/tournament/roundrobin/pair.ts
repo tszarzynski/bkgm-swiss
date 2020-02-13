@@ -1,4 +1,4 @@
-import { ISBPlayer } from "../../types";
+import { PlayerWithResults, Pairing, Match } from "../../types";
 import { BYE_ID } from "../../consts";
 
 /**
@@ -20,17 +20,17 @@ export const shiftArray = <T>(arr: T[], offset: number) => {
 /**
  * Folds array into pairs
  */
-export const toPairs = (arr: number[]) => {
+export const toPairs = (arr: number[]): Pairing[] => {
   // determine the middle of the array
   const half = Math.ceil(arr.length / 2);
   const firstHalf = arr.slice(0, half);
-  const secondHalf = arr.slice(half).reverse(); 
-  
+  const secondHalf = arr.slice(half).reverse();
+
   // fold intro pairs
   return firstHalf.map((id, idx) => [id, secondHalf[idx] || BYE_ID]);
 };
 
-export function pairPlayers(players: ISBPlayer[]) {
+export function pairPlayers(players: PlayerWithResults[]) {
   const shiftBy = Math.min(...players.map(players => players.opponents.length));
   const shifted = shiftArray(
     players.map(player => player.ID),

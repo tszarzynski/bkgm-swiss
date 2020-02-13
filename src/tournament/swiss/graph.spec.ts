@@ -4,7 +4,7 @@ import {
   makeWeightedGraph,
   quality
 } from "./graph";
-import { ISBPlayer } from "../../types";
+
 
 test("quality should return correct value", () => {
   expect(quality(0, 0)).toBe(1);
@@ -12,7 +12,7 @@ test("quality should return correct value", () => {
 });
 
 test("calcHighestScore should return correct value", () => {
-  const players: ISBPlayer[] = [
+  const players = [
     {
       ID: 1,
       name: "Player 1",

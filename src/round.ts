@@ -1,75 +1,22 @@
-import { pairPlayers } from './tournament/swiss/pair';
-import { calcOMV, rankPlayers } from './rank';
-import { ISBPairing, ISBPlayer } from './types';
+import uuid from "uuid/v1";
+import { BYE_ID } from "./consts";
+import { Match, Pairing } from "./types";
 
-export function playRound(players: ISBPlayer[]): ISBPlayer[] {
-  // make pairs
-  const pairings = pairPlayers(players);
+export const makeMatch = (
+  roundID: number,
+  pairing: Pairing,
+  ID:string = uuid()
+): Match => {
+  const hasBye = pairing.includes(BYE_ID);
 
-  let roundResults: ISBPlayer[] = [];
-  pairings.forEach((pair: ISBPairing) => {
-    // BYE
-    if (checkIfBye(pair)) {
-      roundResults = roundResults.concat(playBye(pair, players));
-    } else {
-      roundResults = roundResults.concat(playMatch(pair, players));
-    }
-  });
-  roundResults = roundResults.map(pl => ({
-    ...pl,
-    omv: calcOMV(roundResults, pl),
-  }));
+  return {
+    roundID,
+    ID,
+    pairing,
+    result: [0, hasBye ? -1 : 0],
+    hasBye
+  };
+};
 
-  return rankPlayers(roundResults);
-}
-
-function updatePlayer(pl: ISBPlayer, props: Partial<ISBPlayer>): ISBPlayer {
-  return { ...pl, ...props };
-}
-
-function playMatch([pr1, pr2]: ISBPairing, players: ISBPlayer[]) {
-  console.log('Playing: ' + pr1 + ' vs ' + pr2);
-  const pl1 = players.find(p => p.ID === pr1)!;
-  const pl2 = players.find(p => p.ID === pr2)!;
-
-  const matchResult = Array.from({ length: 3 }, () =>
-    Math.random() > 0.5 ? pl1.ID : pl2.ID
-  );
-
-  const pl1GamesWon = matchResult.filter(r => r === pl1.ID).length;
-  const pl2GamesWon = matchResult.filter(r => r === pl2.ID).length;
-
-  return [
-    updatePlayer(pl1, {
-      gamesWon: pl1.gamesWon + matchResult.filter(r => r === pl1.ID).length,
-      matchesWon:
-        pl1GamesWon > pl2GamesWon ? pl1.matchesWon + 1 : pl1.matchesWon,
-      matchesLost:
-        pl1GamesWon < pl2GamesWon ? pl1.matchesLost + 1 : pl1.matchesLost,
-
-      opponents: [...pl1.opponents, pl2.ID],
-    }),
-    updatePlayer(pl2, {
-      gamesWon: pl2.gamesWon + matchResult.filter(r => r === pl2.ID).length,
-      matchesWon:
-        pl1GamesWon < pl2GamesWon ? pl2.matchesWon + 1 : pl2.matchesWon,
-      matchesLost:
-        pl1GamesWon > pl2GamesWon ? pl2.matchesLost + 1 : pl2.matchesLost,
-      opponents: [...pl2.opponents, pl1.ID],
-    }),
-  ];
-}
-
-function checkIfBye([pr1, pr2]: ISBPairing) {
-  return pr1 === -1 || pr2 === -1;
-}
-function playBye([pr1, pr2]: ISBPairing, players: ISBPlayer[]) {
-  console.log('Playing BYE');
-  const pl = players.find(p => p.ID === pr1 || p.ID === pr2)!;
-  return [
-    updatePlayer(pl, {
-      matchesWon: pl.matchesWon + 1,
-      opponents: [...pl.opponents, -1],
-    }),
-  ];
-}
+export const makeRound = (pairings: Pairing[], roundID: number) =>
+  pairings.map(pairing => makeMatch(roundID, pairing));

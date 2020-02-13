@@ -1,16 +1,16 @@
 import mwm from 'edmonds-blossom';
-import { ISBPairing, ISBPlayer, ISBGraphEdge } from '../../types';
+import { GraphEdge, Pairing, Player } from '../../types';
 
-export const transformMWMToPairings = (players: ISBPlayer[]) => (
+export const transformMWMToPairings = (players: Player[]) => (
   mwm: number[]
 ) =>
-  mwm.reduce<{ pairs: ISBPairing[]; paired: number[] }>(
+  mwm.reduce<{ pairs: Pairing[]; paired: number[] }>(
     (acc, node, index) => {
       const { pairs, paired } = acc;
       const pair = [
         players[index].ID,
         node !== -1 ? players[node].ID : -1,
-      ] as ISBPairing;
+      ] as Pairing;
 
       return pair.some(id => paired.indexOf(id) !== -1)
         ? acc
@@ -24,4 +24,4 @@ export const transformMWMToPairings = (players: ISBPlayer[]) => (
  * Calculate MWM for given graph
  * @param graph
  */
-export const calcMWMForGraph = (graph: ISBGraphEdge[]) => mwm(graph);
+export const calcMWMForGraph = (graph: GraphEdge[]) => mwm(graph);

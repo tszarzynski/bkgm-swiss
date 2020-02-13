@@ -1,4 +1,4 @@
-export { pairPlayers } from './tournament/swiss/pair';
-export { roundsNeeded } from './utils';
-export { rankPlayers, calcOMV } from './rank';
-export * from './types';
+export { tournament as SwissTournament } from "./tournament/swiss";
+export { tournament as RoundRobinTournament } from "./tournament/roundrobin";
+export { getRanking } from "./rank";
+export {Player, Match, TournamentType} from "./types";

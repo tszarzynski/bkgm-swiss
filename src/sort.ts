@@ -1,3 +1,5 @@
+import { curry } from "ramda";
+
 export function asc<T, K extends keyof T>(prop: K) {
   return (a: T, b: T) => {
     if (a[prop] > b[prop]) return 1;
@@ -16,11 +18,9 @@ export function desc<T, K extends keyof T>(prop: K) {
   };
 }
 
-export function sortWith<T>(
-  compareFuncs: Array<(a: T, b: T) => number>,
-  arr: T[]
-): T[] {
-  return arr.slice().sort((a: T, b: T) => {
+
+export function sortWith<T>(compareFuncs: Array<(a: T, b: T) => number>) {
+  return (arr: T[]) => arr.slice().sort((a, b) => {
     let result = 0;
     let i = 0;
     while (result === 0 && i < compareFuncs.length) {
@@ -29,4 +29,6 @@ export function sortWith<T>(
     }
     return result;
   });
-}
+};
+
+
